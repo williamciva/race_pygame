@@ -1,7 +1,7 @@
 # pip install cx_freeze
 import cx_Freeze
 executaveis = [ 
-               cx_Freeze.Executable(script="main.py", icon="assets/icone.ico") ]
+               cx_Freeze.Executable(script="main.py", icon="assets/icon.ico") ]
 cx_Freeze.setup(
     name = "Iron Man",
     options={

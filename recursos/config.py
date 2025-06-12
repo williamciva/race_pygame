@@ -3,7 +3,10 @@ game_resolution = (1000, 700)
 
 ## util
 white = (255,255,255)
-black = (0, 0 ,0 )
+black = (0, 0 ,0)
+black_transparent = (0, 0, 0, 180)
+black_transparent_2 = (0, 0, 0, 90)
+
 
 ## gameplay
 enemy_positions_x = (380, 495)
