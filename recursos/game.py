@@ -52,6 +52,17 @@ font = pygame.font.SysFont("arial", 22)
 font_big = pygame.font.SysFont("arial", 72)
 
 
+## filters
+filter = pygame.Surface(config.game_resolution, pygame.SRCALPHA)
+
+filter_transparent = filter
+filter_transparent.fill(config.black_transparent)
+
+filter_transparent_2 = filter
+filter_transparent.fill(config.black_transparent_2)
+
+    
+
 def start():
     menu(home_background)
 
@@ -83,6 +94,7 @@ def menu(background):
     center_position_y_quit_text = center_position_y_quit + (alturaButtonQuit - quit_text_height) / 2
 
 
+    
     while True:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -112,7 +124,8 @@ def menu(background):
                     
             
         window.fill(config.white)
-        window.blit(background, (0,0) )
+        window.blit(background, (0,0))
+        window.blit(filter_transparent_2, (0, 0))
 
         startButton = pygame.draw.rect(window, config.white, (center_position_x_start, center_position_y_start, larguraButtonStart, alturaButtonStart), border_radius=15)
         window.blit(startTexto, (center_position_x_start_text, center_position_y_start_text))
@@ -135,9 +148,6 @@ def play():
     pontos = 0
     count_cars = 0
     dificuldade  = 30
-    
-    filter_pause = pygame.Surface(config.game_resolution, pygame.SRCALPHA)
-    filter_pause.fill(config.black_transparent)
     
     is_paused = False
     pause = False
@@ -175,7 +185,7 @@ def play():
                
         if is_paused:
             if pause:  
-                window.blit(filter_pause, (0, 0))
+                window.blit(filter_transparent, (0, 0))
 
                 texto_pause = font_big.render("PAUSE", True, config.white)
                 texto_rect = texto_pause.get_rect(center=(config.game_resolution[0] // 2, config.game_resolution[1] // 2))
@@ -186,12 +196,15 @@ def play():
         
         else:    
             red_car.x = red_car.x + move_x_red_car            
-            red_car.y = red_car.y + move_y_red_car            
+            red_car.y = red_car.y + move_y_red_car
+            enemy_car.y = enemy_car.y + enemy_car.velocity            
+            
             
             if red_car.x < config.road_limit_x[0]:
                 red_car.x = config.road_limit_x[0]
             elif red_car.x > config.road_limit_x[1]:
                 red_car.x = config.road_limit_x[1]
+                
                 
             if red_car.y < 0 :
                 red_car.y = 10
@@ -211,9 +224,6 @@ def play():
                 config.map_2_postion_y = config.map_1_postion_y-1390
             
             
-            enemy_car.y = enemy_car.y + enemy_car.velocity
-            
-            
             if enemy_car.y > red_car.y and count_cars == pontos:
                 pontos += 1
                 pygame.mixer.Sound.play(race_car_passing)
@@ -230,8 +240,10 @@ def play():
             
             text_points = font.render("Pontos: " + str(pontos), True, config.white)
             text_points_width = (text_points.get_size()[0]) + 60
+            
             text_pause = font_small.render("Press Space to Pause Game", True, config.white)
             text_pause_width = (text_points.get_size()[0])
+            
             label_width = text_points_width + text_pause_width + 52
             label_point = pygame.Surface((label_width, 35), pygame.SRCALPHA)
             pygame.draw.rect(label_point, config.black_transparent_2, (0, 0, label_width, 35))
@@ -254,8 +266,6 @@ def play():
                     
                     menu(endgame_background)
 
-                
-                    
             
             ## render
             window.fill(config.white)    

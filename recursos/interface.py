@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from recursos.funcoes import getDados 
 
 name = None
@@ -12,7 +13,7 @@ def input_name():
         global name
         name = entry_nome.get() 
         if not name:
-            tk.messagebox.showwarning("Aviso", "Por favor, digite seu nome!")
+            messagebox.showwarning("Aviso", "Por favor, digite seu nome!")
         else:
             root.destroy()
 
