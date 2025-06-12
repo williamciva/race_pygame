@@ -1,8 +1,14 @@
 import pygame
+import recursos.config as config
 
 class Car:
     def __init__(self, path, game_resulution, direction = "up"):
         self.__divisor = 5
+        self.x = config.enemy_positions_x[1]
+        self.y = 500
+        self.velocity = 0
+        self.colisor_x = []
+        self.colisor_y = []
         
         self.direction = direction
         self.resolution = self.__get_car_resolution(game_resulution)

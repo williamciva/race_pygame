@@ -6,35 +6,54 @@ from tkinter import messagebox
 from recursos.funcoes import inicializarBancoDeDados
 from recursos.funcoes import escreverDados
 from recursos.car import Car
+import recursos.config as config
 import json
+
 
 pygame.init()
 inicializarBancoDeDados()
-tamanho = (1000,700)
 relogio = pygame.time.Clock()
-tela = pygame.display.set_mode( tamanho ) 
-pygame.display.set_caption("Iron Man do Marcão")
+tela = pygame.display.set_mode( config.game_resolution ) 
+pygame.display.set_caption("Need 4 Python")
 icone  = pygame.image.load("assets/icone.png")
 pygame.display.set_icon(icone)
 branco = (255,255,255)
 preto = (0, 0 ,0 )
 
+
 ## base assets
-car_red = Car("assets/car_red.png", tamanho)
-car_purple = Car("assets/car_purple.png", tamanho, "down")
-car_yellow = Car("assets/car_yellow.png", tamanho, "down")
-car_blue = Car("assets/car_yellow.png", tamanho, "down")
-enemy_cars = (car_purple, car_yellow, car_blue)
+## cars
+red_car = Car("assets/red_car.png", config.game_resolution)
+purple_car = Car("assets/purple_car.png", config.game_resolution, "down")
+yellow_car = Car("assets/yellow_car.png", config.game_resolution, "down")
+blue_car = Car("assets/blue_car.png", config.game_resolution, "down")
+enemy_cars = (purple_car, yellow_car, blue_car)
+
+# backgrounds
+home_background = pygame.transform.smoothscale(pygame.image.load("assets/home_background.png"), config.game_resolution)
 
 
-fundoStart = pygame.transform.smoothscale(pygame.image.load("assets/background_init.png"), tamanho)
-fundoJogo = pygame.image.load("assets/road.png")
+## backgrounds
+road_background_1 = pygame.image.load("assets/road_big.png")
+road_background_2 = pygame.transform.rotate(pygame.image.load("assets/road_big.png"), 180)
+
+
+## sounds
+pygame.mixer.music.load("assets/nfs_theme.mp3")
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.fadeout(3000)
+pygame.mixer.music.play(-1, fade_ms=2000)
+
+race_car_passing = pygame.mixer.Sound("assets/race_car_passing.mp3")
+race_car_passing.set_volume(0.05)
+
+
 fundoDead = pygame.image.load("assets/fundoDead.png")
-missileSound = pygame.mixer.Sound("assets/missile.wav")
+
 explosaoSound = pygame.mixer.Sound("assets/explosao.wav")
 fonteMenu = pygame.font.SysFont("comicsans",18)
 fonteMorte = pygame.font.SysFont("arial",120)
-pygame.mixer.music.load("assets/ironsound.mp3")
+
 
 def jogar():
     largura_janela = 300
@@ -70,99 +89,106 @@ def jogar():
     # root.mainloop()
     
     # if (True):
-    #     raise Exception("w: " + str(car_red.width) + " h: " + str(car_red.height))
+    #     raise Exception("w: " + str(red_car.width) + " h: " + str(red_car.height))
 
-    car_positions_X = (375, 490)
-    random_car_position = car_positions_X[random.randint(0, len(car_positions_X) - 1)]
 
-    posicaoXPersona = car_positions_X[0]
-    posicaoYPersona = 500
-    movimentoXPersona  = 0
-    movimentoYPersona  = 0
-    posicaoXMissel = random_car_position
-    posicaoYMissel = -100
-    velocidadeMissel = 1
-    # pygame.mixer.Sound.play(missileSound)
-    pygame.mixer.music.play(-1)
+    move_x_red_car  = 0
+    move_y_red_car  = 0
+    enemy_car = enemy_cars[random.randint(0, len(enemy_cars) - 1)] 
+    enemy_car.x = config.enemy_positions_x[random.randint(0, len(config.enemy_positions_x) - 1)]
+    enemy_car.y = -100
+    enemy_car.velocity = 5
+    enemy_car_velocity = enemy_car.velocity
     pontos = 0
     dificuldade  = 30
         
-    random_enemy_car = enemy_cars[random.randint(0, len(enemy_cars) - 1)] 
+    
     while True:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 quit()
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_RIGHT:
-                movimentoXPersona = 15
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_LEFT:
-                movimentoXPersona = -15
-            elif evento.type == pygame.KEYUP and evento.key == pygame.K_RIGHT:
-                movimentoXPersona = 0
-            elif evento.type == pygame.KEYUP and evento.key == pygame.K_LEFT:
-                movimentoXPersona = 0
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_UP:
-                movimentoYPersona = -15
-            elif evento.type == pygame.KEYDOWN and evento.key == pygame.K_DOWN:
-                movimentoYPersona = 15
-            elif evento.type == pygame.KEYUP and evento.key == pygame.K_UP:
-                movimentoYPersona = 0
-            elif evento.type == pygame.KEYUP and evento.key == pygame.K_DOWN:
-                movimentoYPersona = 0
+            elif evento.type == pygame.KEYDOWN and (evento.key == pygame.K_RIGHT or evento.key == pygame.K_d):
+                move_x_red_car = 15
+            elif evento.type == pygame.KEYDOWN and (evento.key == pygame.K_LEFT or evento.key == pygame.K_a):
+                move_x_red_car = -15
+            elif evento.type == pygame.KEYUP and (evento.key == pygame.K_RIGHT or evento.key == pygame.K_d):
+                move_x_red_car = 0
+            elif evento.type == pygame.KEYUP and (evento.key == pygame.K_LEFT or evento.key == pygame.K_a):
+                move_x_red_car = 0
+            elif evento.type == pygame.KEYDOWN and (evento.key == pygame.K_UP or evento.key == pygame.K_w):
+                move_y_red_car = -15
+            elif evento.type == pygame.KEYDOWN and (evento.key == pygame.K_DOWN or evento.key == pygame.K_s):
+                move_y_red_car = 15
+            elif evento.type == pygame.KEYUP and evento.key == (pygame.K_UP or evento.key == pygame.K_w):
+                move_y_red_car = 0
+            elif evento.type == pygame.KEYUP and evento.key == (pygame.K_DOWN or evento.key == pygame.K_s):
+                move_y_red_car = 0
                 
-        posicaoXPersona = posicaoXPersona + movimentoXPersona            
-        posicaoYPersona = posicaoYPersona + movimentoYPersona            
+        red_car.x = red_car.x + move_x_red_car            
+        red_car.y = red_car.y + move_y_red_car            
         
-        if posicaoXPersona < 0 :
-            posicaoXPersona = 15
-        elif posicaoXPersona >550:
-            posicaoXPersona = 540
+        if red_car.x < config.road_limit_x[0]:
+            red_car.x = config.road_limit_x[0]
+        elif red_car.x > config.road_limit_x[1]:
+            red_car.x = config.road_limit_x[1]
             
-        if posicaoYPersona < 0 :
-            posicaoYPersona = 15
-        elif posicaoYPersona > 473:
-            posicaoYPersona = 463
+        if red_car.y < 0 :
+            red_car.y = 15
+        elif red_car.y > 473:
+            red_car.y = 463
         
             
         tela.fill(branco)
-        tela.blit(fundoJogo, (0,0) )
+        
+
+        config.map_velocity += 0.007
+        config.map_1_postion_y += config.map_velocity
+        config.map_2_postion_y += config.map_velocity
         
         
-        tela.blit(car_red.sprite, (posicaoXPersona, posicaoYPersona) )
+        if(config.map_1_postion_y >= 700):
+            config.map_1_postion_y = config.map_2_postion_y-1390
+                    
+        if(config.map_2_postion_y >= 700):
+            config.map_2_postion_y = config.map_1_postion_y-1390
         
-        posicaoYMissel = posicaoYMissel + velocidadeMissel
-        if posicaoYMissel > 600:
-            random_car_position = car_positions_X[random.randint(0, len(car_positions_X) - 1)]
-            posicaoYMissel = -240
+            
+        tela.blit(road_background_1, (config.map_1_postion_x, config.map_1_postion_y))
+        tela.blit(road_background_2, (config.map_2_postion_x, config.map_2_postion_y))        
+        tela.blit(red_car.sprite, (red_car.x, red_car.y))
+        
+        
+        enemy_car.y = enemy_car.y + enemy_car.velocity
+        if enemy_car.y > red_car.y:
             pontos = pontos + 1
-            velocidadeMissel = velocidadeMissel + 1
-            posicaoXMissel = random.randint(0,800)
-            pygame.mixer.Sound.play(missileSound)
+            
+            enemy_car = enemy_cars[random.randint(0, len(enemy_cars) - 1)] 
+            enemy_car.x = config.enemy_positions_x[random.randint(0, len(config.enemy_positions_x) - 1)]
+            enemy_car.y = -240
+            enemy_car_velocity = enemy_car_velocity + 1
+            enemy_car.velocity = enemy_car_velocity
+            
+            pygame.mixer.Sound.play(race_car_passing)
+        
             
 
-
-        tela.blit(random_enemy_car.sprite, (posicaoXMissel, posicaoYMissel) )
+        tela.blit(enemy_car.sprite, (enemy_car.x, enemy_car.y) )
         
         texto = fonteMenu.render("Pontos: "+str(pontos), True, branco)
         tela.blit(texto, (15,15))
     
         
-        pixelsPersonaX = list(range(posicaoXPersona, posicaoXPersona + car_red.width))
-        pixelsPersonaY = list(range(posicaoYPersona, posicaoYPersona + car_red.height))
-        pixelsMisselX = list(range(posicaoXMissel, posicaoXMissel + random_enemy_car.width))
-        pixelsMisselY = list(range(posicaoYMissel, posicaoYMissel + random_enemy_car.height))
+        red_car.colisor_x = list(range(red_car.x, red_car.x + red_car.width))
+        red_car.colisor_y = list(range(red_car.y, red_car.y + red_car.height))
+        enemy_car.colisor_x = list(range(enemy_car.x, enemy_car.x + enemy_car.width))
+        enemy_car.colisor_y = list(range(enemy_car.y, enemy_car.y + enemy_car.height))
         
         
         os.system("cls")
-        # print( len( list( set(pixelsMisselX).intersection(set(pixelsPersonaX))   ) )   )
-        if  len( list( set(pixelsMisselY).intersection(set(pixelsPersonaY))) ) > dificuldade:
-            if len( list( set(pixelsMisselX).intersection(set(pixelsPersonaX))   ) )  > dificuldade:
+        if  len( list( set(enemy_car.colisor_y).intersection(set(red_car.colisor_y))) ) > dificuldade:
+            if len( list( set(enemy_car.colisor_x).intersection(set(red_car.colisor_x))   ) )  > dificuldade:
                 escreverDados(nome, pontos)
                 dead()
-                
-            else:
-                print("Ainda Vivo, mas por pouco!")
-        else:
-            print("Ainda Vivo")
         
         pygame.display.update()
         relogio.tick(60)
@@ -191,12 +217,10 @@ def start():
             elif evento.type == pygame.MOUSEBUTTONUP:
                 # Verifica se o clique foi dentro do retângulo
                 if startButton.collidepoint(evento.pos):
-                    #pygame.mixer.music.play(-1)
                     larguraButtonStart = 150
                     alturaButtonStart  = 40
                     jogar()
                 if quitButton.collidepoint(evento.pos):
-                    #pygame.mixer.music.play(-1)
                     larguraButtonQuit = 150
                     alturaButtonQuit  = 40
                     quit()
@@ -204,7 +228,7 @@ def start():
             
             
         tela.fill(branco)
-        tela.blit(fundoStart, (0,0) )
+        tela.blit(home_background, (0,0) )
 
         startButton = pygame.draw.rect(tela, branco, (10,10, larguraButtonStart, alturaButtonStart), border_radius=15)
         startTexto = fonteMenu.render("Iniciar Game", True, preto)
@@ -261,12 +285,10 @@ def dead():
             elif evento.type == pygame.MOUSEBUTTONUP:
                 # Verifica se o clique foi dentro do retângulo
                 if startButton.collidepoint(evento.pos):
-                    #pygame.mixer.music.play(-1)
                     larguraButtonStart = 150
                     alturaButtonStart  = 40
                     jogar()
                 if quitButton.collidepoint(evento.pos):
-                    #pygame.mixer.music.play(-1)
                     larguraButtonQuit = 150
                     alturaButtonQuit  = 40
                     quit()
@@ -292,4 +314,3 @@ def dead():
 
 
 start()
-
