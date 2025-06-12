@@ -9,8 +9,7 @@ def limpar_tela():
 def aguarde(segundos):
     time.sleep(segundos)
     
-def inicializarBancoDeDados():
-    # r - read, w - write, a - append
+def init_db():
     try:
         banco = open("base.atitus","r")
     except:
@@ -18,7 +17,8 @@ def inicializarBancoDeDados():
         banco = open("base.atitus","w")
     
 def escreverDados(nome, pontos):
-    # INI - inserindo no arquivo
+    init_db()
+    
     banco = open("base.atitus","r")
     dados = banco.read()
     banco.close()
@@ -34,4 +34,7 @@ def escreverDados(nome, pontos):
     banco.write(json.dumps(dadosDict))
     banco.close()
     
-    # END - inserindo no arquivo
+def getDados():
+    init_db()
+    
+    return json.loads(open("base.atitus", "r").read())
