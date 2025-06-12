@@ -51,6 +51,79 @@ fonteMenu = pygame.font.SysFont("comicsans",18)
 fonteMorte = pygame.font.SysFont("arial",120)
 
 
+def start():
+    menu(home_background)
+
+
+def menu(background):    
+    larguraButtonStart = 150
+    alturaButtonStart  = 40
+    larguraButtonQuit = 150
+    alturaButtonQuit  = 40
+    
+    
+    center_position_x_start = (config.game_resolution[0] - larguraButtonStart) / 2
+    center_position_y_start = ((config.game_resolution[1] - alturaButtonStart) / 2) - 10
+
+
+    center_position_x_quit = (config.game_resolution[0] - larguraButtonQuit) / 2
+    center_position_y_quit = ((config.game_resolution[1] + alturaButtonQuit) / 2) + 10
+
+
+    startTexto = fonteMenu.render("Iniciar Game", True, config.black)
+    start_text_width , start_text_height = startTexto.get_size()
+    center_position_x_start_text = center_position_x_start + (larguraButtonStart - start_text_width) / 2
+    center_position_y_start_text = center_position_y_start + (alturaButtonStart - start_text_height) / 2
+    
+    
+    quitTexto = fonteMenu.render("Sair do Game", True, config.black)
+    quit_text_width , quit_text_height = quitTexto.get_size()
+    center_position_x_quit_text = center_position_x_quit + (larguraButtonQuit - quit_text_width) / 2
+    center_position_y_quit_text = center_position_y_quit + (alturaButtonQuit - quit_text_height) / 2
+
+
+
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                quit()
+                
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if startButton.collidepoint(evento.pos):
+                    larguraButtonStart = 140
+                    alturaButtonStart  = 35
+                    
+                if quitButton.collidepoint(evento.pos):
+                    larguraButtonQuit = 140
+                    alturaButtonQuit  = 35
+
+                
+            elif evento.type == pygame.MOUSEBUTTONUP:
+                if startButton.collidepoint(evento.pos):
+                    larguraButtonStart = 150
+                    alturaButtonStart  = 40
+                    interface.input_name()
+                    play()
+                    
+                if quitButton.collidepoint(evento.pos):
+                    larguraButtonQuit = 150
+                    alturaButtonQuit  = 40
+                    quit()
+                    
+            
+        window.fill(config.white)
+        window.blit(background, (0,0) )
+
+        startButton = pygame.draw.rect(window, config.white, (center_position_x_start, center_position_y_start, larguraButtonStart, alturaButtonStart), border_radius=15)
+        window.blit(startTexto, (center_position_x_start_text, center_position_y_start_text))
+        
+        quitButton = pygame.draw.rect(window, config.white, (center_position_x_quit, center_position_y_quit, larguraButtonQuit, alturaButtonQuit), border_radius=15)
+        window.blit(quitTexto, (center_position_x_quit_text, center_position_y_quit_text))
+        
+        pygame.display.update()
+        clock.tick(60)
+
+
 def play():
     move_x_red_car  = 0
     move_y_red_car  = 0
@@ -135,8 +208,9 @@ def play():
         os.system("cls")
         if  len( list( set(enemy_car.colisor_y).intersection(set(red_car.colisor_y))) ) > dificuldade:
             if len( list( set(enemy_car.colisor_x).intersection(set(red_car.colisor_x))   ) )  > dificuldade:
-                escreverDados(interface.name, pontos)
-                dead()
+                pygame.mixer.Sound.play(crashSound)
+                                
+                dead(pontos)
                 
         
         ## render
@@ -152,103 +226,7 @@ def play():
         clock.tick(60)
 
 
-def start():
-    larguraButtonStart = 150
-    alturaButtonStart  = 40
-    larguraButtonQuit = 150
-    alturaButtonQuit  = 40
-    
-
-    while True:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                quit()
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
-                if startButton.collidepoint(evento.pos):
-                    larguraButtonStart = 140
-                    alturaButtonStart  = 35
-                if quitButton.collidepoint(evento.pos):
-                    larguraButtonQuit = 140
-                    alturaButtonQuit  = 35
-
-                
-            elif evento.type == pygame.MOUSEBUTTONUP:
-                if startButton.collidepoint(evento.pos):
-                    larguraButtonStart = 150
-                    alturaButtonStart  = 40
-                    interface.input_name()
-                    play()
-                if quitButton.collidepoint(evento.pos):
-                    larguraButtonQuit = 150
-                    alturaButtonQuit  = 40
-                    quit()
-                    
-            
-            
-        window.fill(config.white)
-        window.blit(home_background, (0,0) )
-
-        startButton = pygame.draw.rect(window, config.white, (10,10, larguraButtonStart, alturaButtonStart), border_radius=15)
-        startTexto = fonteMenu.render("Iniciar Game", True, config.black)
-        window.blit(startTexto, (25,12))
-        
-        quitButton = pygame.draw.rect(window, config.white, (10,60, larguraButtonQuit, alturaButtonQuit), border_radius=15)
-        quitTexto = fonteMenu.render("Sair do Game", True, config.black)
-        window.blit(quitTexto, (25,62))
-        
-        pygame.display.update()
-        clock.tick(60)
-
-
-def dead():
-    pygame.mixer.music.stop()
-    pygame.mixer.Sound.play(crashSound)
-    larguraButtonStart = 150
-    alturaButtonStart  = 40
-    larguraButtonQuit = 150
-    alturaButtonQuit  = 40
-    
+def dead(pontos):
+    escreverDados(interface.name, pontos)
     interface.dead_window()
-
-    while True:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                quit()
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
-                if startButton.collidepoint(evento.pos):
-                    larguraButtonStart = 140
-                    alturaButtonStart  = 35
-                if quitButton.collidepoint(evento.pos):
-                    larguraButtonQuit = 140
-                    alturaButtonQuit  = 35
-
-                
-            elif evento.type == pygame.MOUSEBUTTONUP:
-                # Verifica se o clique foi dentro do retângulo
-                if startButton.collidepoint(evento.pos):
-                    larguraButtonStart = 150
-                    alturaButtonStart  = 40
-                    play()
-                if quitButton.collidepoint(evento.pos):
-                    larguraButtonQuit = 150
-                    alturaButtonQuit  = 40
-                    quit()
-                    
-        
-            
-            
-        window.fill(config.white)
-        window.blit(endgame_background, (0,0) )
-
-        
-        startButton = pygame.draw.rect(window, config.white, (10,10, larguraButtonStart, alturaButtonStart), border_radius=15)
-        startTexto = fonteMenu.render("Iniciar Game", True, config.black)
-        window.blit(startTexto, (25,12))
-        
-        quitButton = pygame.draw.rect(window, config.white, (10,60, larguraButtonQuit, alturaButtonQuit), border_radius=15)
-        quitTexto = fonteMenu.render("Sair do Game", True, config.black)
-        window.blit(quitTexto, (25,62))
-
-
-        pygame.display.update()
-        clock.tick(60)
+    menu(endgame_background)
