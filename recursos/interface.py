@@ -25,7 +25,6 @@ def input_name():
     pos_y = (altura_window - altura_janela) // 2
     root.geometry(f"{largura_janela}x{altura_janela}+{pos_x}+{pos_y}")
     root.title("Informe seu nickname")
-    root.protocol("WM_DELETE_WINDOW", get_name)
 
     entry_nome = tk.Entry(root)
     entry_nome.pack()

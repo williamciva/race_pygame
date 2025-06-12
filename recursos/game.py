@@ -19,9 +19,9 @@ pygame.display.set_icon(icon)
 
 ## cars
 red_car = Car("assets/red_car.png", config.game_resolution)
-purple_car = Car("assets/purple_car.png", config.game_resolution, "down")
-yellow_car = Car("assets/yellow_car.png", config.game_resolution, "down")
-blue_car = Car("assets/blue_car.png", config.game_resolution, "down")
+purple_car = Car("assets/purple_car.png", config.game_resolution)
+yellow_car = Car("assets/yellow_car.png", config.game_resolution)
+blue_car = Car("assets/blue_car.png", config.game_resolution)
 enemy_cars = (purple_car, yellow_car, blue_car)
 
 
@@ -141,7 +141,14 @@ def play():
     move_x_red_car  = 0
     move_y_red_car  = 0
     enemy_car = enemy_cars[random.randint(0, len(enemy_cars) - 1)] 
-    enemy_car.x = config.enemy_positions_x[random.randint(0, len(config.enemy_positions_x) - 1)]
+    
+    position = random.randint(0, len(config.enemy_positions_x) - 1)
+    if position % 2 == 0:
+        enemy_car.setRotation("down")
+    else:
+        enemy_car.setRotation("up")
+    enemy_car.x = config.enemy_positions_x[position]
+    
     enemy_car.y = -100
     enemy_car.velocity = 5
     enemy_car_velocity = enemy_car.velocity
@@ -232,11 +239,18 @@ def play():
             if enemy_car.y > config.game_resolution[1]:
                 count_cars += 1              
                 enemy_car = enemy_cars[random.randint(0, len(enemy_cars) - 1)] 
-                enemy_car.x = config.enemy_positions_x[random.randint(0, len(config.enemy_positions_x) - 1)]
+                
+                position = random.randint(0, len(config.enemy_positions_x) - 1)
+                if position % 2 == 0:
+                    enemy_car.setRotation("down")
+                else:
+                    enemy_car.setRotation("up")
+                enemy_car.x = config.enemy_positions_x[position]
+    
                 enemy_car.y = int(enemy_car.resolution[1] * -1)
                 enemy_car_velocity = enemy_car_velocity + 1
                 enemy_car.velocity = enemy_car_velocity
-                            
+            
             
             text_points = font.render("Pontos: " + str(pontos), True, config.white)
             text_points_width = (text_points.get_size()[0]) + 60
@@ -255,7 +269,6 @@ def play():
             enemy_car.colisor_y = list(range(enemy_car.y, enemy_car.y + enemy_car.height))
             
             
-            os.system("cls")
             if  len( list( set(enemy_car.colisor_y).intersection(set(red_car.colisor_y))) ) > dificuldade:
                 if len( list( set(enemy_car.colisor_x).intersection(set(red_car.colisor_x))   ) )  > dificuldade:
                     

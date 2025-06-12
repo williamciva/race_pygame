@@ -3,6 +3,14 @@ import recursos.config as config
 
 class Car:
     def __init__(self, path, game_resulution, direction = "up"):
+        self.rotation = {
+            "up": 90,
+            "down": 270,
+            "left": 180,
+            "right": 0
+        }   
+        
+        self.path = path
         self.__divisor = 5
         self.x = config.enemy_positions_x[1]
         self.y = 500
@@ -12,21 +20,18 @@ class Car:
         
         self.direction = direction
         self.resolution = self.__get_car_resolution(game_resulution)
-        self.sprite = self.__import_car_image(path, direction)
+        self.__import_car_image(direction)
         car_len = self.get_colisor()
         self.width = car_len[0]
-        self.height = car_len[1]
-
-        
-    def __import_car_image(self, path, direction):
-        rotation = {
-            "up": 90,
-            "down": 270,
-            "left": 180,
-            "right": 0
-        }
-            
-        return pygame.transform.scale(pygame.transform.rotate(pygame.image.load(path), rotation[direction]), self.resolution)
+        self.height = car_len[1]    
+    
+    
+    def __import_car_image(self, direction):            
+        self.sprite = pygame.transform.scale(pygame.transform.rotate(pygame.image.load(self.path), self.rotation[direction]), self.resolution)
+    
+    
+    def setRotation(self, direction):
+        self.__import_car_image(direction)
     
     
     def __get_car_resolution(self, game_resolution):
